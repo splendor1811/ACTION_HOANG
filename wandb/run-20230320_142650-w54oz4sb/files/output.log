@@ -1,0 +1,28 @@
+[ Mon Mar 20 14:27:01 2023 ] # Parameters: 1998697
+[ Mon Mar 20 14:27:01 2023 ] Training epoch: 1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  0%| | 85/34917 [00:34<3:53:35,  2.49it
+Traceback (most recent call last):
+  File "/home/splendor/ACTION_HOANG/posec3d_v2/train.py", line 257, in <module>
+    main(args)
+  File "/home/splendor/ACTION_HOANG/posec3d_v2/train.py", line 251, in main
+    train.epoch_step()
+  File "/home/splendor/ACTION_HOANG/posec3d_v2/train.py", line 232, in epoch_step
+    train_loss, train_accuracy = self.train_step(model=model, epoch=epoch)
+  File "/home/splendor/ACTION_HOANG/posec3d_v2/train.py", line 167, in train_step
+    loss_per_batch += loss_batch.item()

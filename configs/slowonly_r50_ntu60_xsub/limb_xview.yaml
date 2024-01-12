@@ -1,0 +1,161 @@
+model:
+    type: model.recognizers.Recognizer3D
+    backbone:
+        type: ..cnns.ResNet3dSlowOnly
+        args:
+            # conv1_kernel: (1, 7, 7)
+            # inflate: (0, 0, 1, 1)
+            in_channels: 17
+            base_channels: 32
+            num_stages: 3
+            out_indices: [2, ]
+            stage_blocks: [4, 6, 3]
+            conv1_stride: [1, 1]
+            pool1_stride: [1, 1]
+            inflate: [0, 1, 1]
+            spatial_strides: [2, 2, 2]
+            temporal_strides: [1, 1, 2]
+    cls_head:
+        type: ..head.I3DHead
+        args:
+            in_channels: 512
+            num_classes: 9
+            dropout: 0.5
+    test_cfg: 
+        average_clips: 'prob'
+
+# dataset_type : 'PoseDataset'
+# ann_file : 'datasets/nturgbd/ntu60_hrnet.pkl'
+# left_kp : [1, 3, 5, 7, 9, 11, 13, 15]
+# right_kp : [2, 4, 6, 8, 10, 12, 14, 16]
+train_pipeline :
+    UniformSampleFrames:
+        clip_len: 48 #sampling
+    PoseDecode: 0 #pose_related
+    PoseCompact:
+        hw_ratio: 1.
+        allow_imgpad: True #augment
+    Resize1:
+        scale: [-1, 64] #augment
+    RandomResizedCrop:
+        area_range: [0.56, 1.0] #augment
+    Resize2:
+        scale: [56, 56]
+        keep_ratio: False #augment
+    Flip:
+        flip_ratio: 0.5
+        left_kp: [1, 3, 5, 7, 9, 11, 13, 15]
+        right_kp: [2, 4, 6, 8, 10, 12, 14, 16] #augment
+    GeneratePoseTarget:
+        with_kp: False
+        with_limb: True #heatmap related
+    FormatShape:
+        input_format: 'NCTHW_Heatmap' #format
+    Collect:
+        keys: ['imgs', 'label']
+        meta_keys: [] #format
+    ToTensor:
+        keys: ['imgs', 'label']
+
+val_pipeline :
+    UniformSampleFrames:
+        clip_len: 48 #sampling
+        num_clips: 1
+    PoseDecode: 0 #pose_related
+    PoseCompact:
+        hw_ratio: 1.
+        allow_imgpad: True #augment
+    Resize:
+        scale: [64, 64] #augment
+    GeneratePoseTarget:
+        with_kp: False
+        with_limb: True #heatmap related
+    FormatShape:
+        input_format: 'NCTHW_Heatmap' #format
+    Collect:
+        keys: ['imgs', 'label']
+        meta_keys: [] #format
+    ToTensor:
+        keys: ['imgs', 'label']
+
+test_pipeline :
+    UniformSampleFrames:
+        clip_len: 48 #sampling
+        num_clips: 10
+    PoseDecode: 0 #pose_related
+    PoseCompact:
+        hw_ratio: 1.
+        allow_imgpad: True #augment
+    Resize:
+        scale: [64, 64]
+        keep_ratio: False #augment
+    GeneratePoseTarget:
+        with_kp: False
+        with_limb: True #heatmap related
+        double: True
+        left_kp: [1, 3, 5, 7, 9, 11, 13, 15] 
+        right_kp: [2, 4, 6, 8, 10, 12, 14, 16]
+    FormatShape:
+        input_format: 'NCTHW_Heatmap' #format
+    Collect:
+        keys: ['imgs', 'label']
+        meta_keys: [] #format
+    ToTensor:
+        keys: ['imgs', 'label']
+
+data: 
+    videos_per_gpu: 1 #batch size
+    workers_per_gpu: 4
+    test_dataloader: 
+        videos_per_gpu: 1
+    train:
+        # type: RepeatDataset
+        # times: 10
+        # dataset: 
+        type: PoseDataset #dataset_type 
+        ann_file: datasets/nturgbd/label.pkl #ann_file
+        class_count: datasets/nturgbd/class_count.json
+        split: 'xview_train'
+        pipeline: train_pipeline
+    val: 
+        type: PoseDataset #dataset_type 
+        ann_file: datasets/nturgbd/label.pkl #ann_file
+        split: xview_val 
+        pipeline: val_pipeline
+    test: 
+        type: PoseDataset #dataset_type
+        ann_file: datasets/nturgbd/label.pkl #ann_file
+        split: xview_val
+        pipeline: test_pipeline
+# optimizer
+optimizer:
+    type: 'SGD' #'adamw'
+    lr: 0.2 #0.0001
+    momentum: 0.9
+    weight_decay: 0.0003 # this lr is used for 8 gpus
+optimizer_config: 
+    grad_clip:
+        max_norm: 40 
+        norm_type: 2
+
+# learning policy
+lr_config:
+    policy: 'CosineAnnealing' 
+    by_epoch: False 
+    min_lr: 0
+num_epoch: 50
+checkpoint_config:
+    interval: 1
+evaluation:
+    interval: 1 
+    metrics: ['top_k_accuracy', 'mean_class_accuracy']
+    topk: (1, 5)
+log_config: 
+    interval: 20
+    hooks: 
+        type: 'TextLoggerHook'
+log_level: 'INFO'
+work_dir: ./work_dirs/posec3d/slowonly_r50_ntu60_xview_sgd_WF3/limb
+#device
+device: 0
+show_topk: [1, 5]

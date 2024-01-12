@@ -1,0 +1,59 @@
+{
+    "os": "Linux-5.19.0-35-generic-x86_64-with-debian-bookworm-sid",
+    "python": "3.7.16",
+    "heartbeatAt": "2023-03-20T07:59:00.074543",
+    "startedAt": "2023-03-20T07:58:58.282391",
+    "docker": null,
+    "cuda": null,
+    "args": [],
+    "state": "running",
+    "program": "/home/splendor/ACTION_HOANG/posec3d_v2/train.py",
+    "codePath": "train.py",
+    "host": "splendor1811",
+    "username": "splendor",
+    "executable": "/home/splendor/anaconda3/envs/cmc/bin/python",
+    "cpu_count": 4,
+    "cpu_count_logical": 4,
+    "cpu_freq": {
+        "current": 3.0035,
+        "min": 800.0,
+        "max": 3200.0
+    },
+    "cpu_freq_per_core": [
+        {
+            "current": 2.822,
+            "min": 800.0,
+            "max": 3200.0
+        },
+        {
+            "current": 2.816,
+            "min": 800.0,
+            "max": 3200.0
+        },
+        {
+            "current": 2.833,
+            "min": 800.0,
+            "max": 3200.0
+        },
+        {
+            "current": 2.822,
+            "min": 800.0,
+            "max": 3200.0
+        }
+    ],
+    "disk": {
+        "total": 215.50541305541992,
+        "used": 130.23170852661133
+    },
+    "gpu": "NVIDIA GeForce GTX 960M",
+    "gpu_count": 1,
+    "gpu_devices": [
+        {
+            "name": "NVIDIA GeForce GTX 960M",
+            "memory_total": 4294967296
+        }
+    ],
+    "memory": {
+        "total": 15.502433776855469
+    }
+}
